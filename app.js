@@ -75,7 +75,7 @@
     if (r) {
       $("residual-a").textContent = pretty(r.standardRms, 3) + "°";
       $("residual-b").textContent = pretty(r.shapedRms, 3) + "°";
-      $("reduction").textContent = r.reduction == null ? "n/a" : pretty(r.reduction, 1) + "%";
+      $("reduction").textContent = r.reduction == null ? "n/a" : pretty(r.reduction, 2) + "%";
       $("result-detail").textContent = "Both trolleys completed the same " + pretty(scenario.cfg.distance, 0) +
         " m transfer. ZVD reaches the destination " + pretty(scenario.T, 2) +
         " s later; residual sway is evaluated during the first natural period after each stop.";
@@ -290,18 +290,17 @@
     const a = scenario.standard.history, b = scenario.shaped.history;
     const heading = ["time_s", "standard_x_m", "standard_velocity_mps", "standard_acceleration_mps2",
       "standard_angle_deg", "standard_current_iq_A",
-      "zvd_x_m", "zvd_velocity_mps", "zvd_acceleration_mps2", "zvd_angle_deg", "zvd_current_iq_A"];
+      "zvd_x_m", "zvd_velocity_mps", "zvd_acceleration_mps2", "zvd_angle_deg", "zvd_current_iq_A",
+      "distance_command_m", "rope_length_m", "payload_kg", "max_speed_mps", "accel_limit_mps2", "natural_period_s"];
     const rows = [heading.join(",")];
     const num = (v) => Number(v).toFixed(6);
     for (let i = 0; i < a.t.length; i++) {
       rows.push([a.t[i], a.x[i], a.v[i], a.a[i], a.theta[i] * 180 / Math.PI, a.current[i],
-        b.x[i], b.v[i], b.a[i], b.theta[i] * 180 / Math.PI, b.current[i]].map(num).join(","));
+        b.x[i], b.v[i], b.a[i], b.theta[i] * 180 / Math.PI, b.current[i],
+        scenario.cfg.distance, scenario.cfg.rope, scenario.cfg.payload, scenario.cfg.speed,
+        scenario.cfg.accel, scenario.T].map(num).join(","));
     }
-    const csv = "# Anti-Sway Lab: modeled Iq-equivalent current, NOT measured electrical RMS current\n" +
-      "# Config: distance=" + scenario.cfg.distance + " m; rope=" + scenario.cfg.rope +
-      " m; payload=" + scenario.cfg.payload + " kg; v_max=" + scenario.cfg.speed +
-      " m/s; acceleration=" + scenario.cfg.accel + " m/s^2; period=" + num(scenario.T) + " s\n" +
-      rows.join("\n") + "\n";
+    const csv = rows.join("\r\n") + "\r\n";
     const objectUrl = URL.createObjectURL(new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" }));
     const aTag = document.createElement("a");
     aTag.href = objectUrl;

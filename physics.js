@@ -1,5 +1,5 @@
 /* Anti-Sway Lab: dependency-free, deterministic crane motion / pendulum model.
- * MIT license. Current is an idealized motor torque-producing Iq estimate, not measured RMS.
+ * Current is an idealized motor torque-producing Iq estimate, not measured RMS.
  */
 (function (root, factory) {
   "use strict";

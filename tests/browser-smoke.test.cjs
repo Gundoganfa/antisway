@@ -63,6 +63,7 @@ test("browser dashboard runs two cranes to completion and exports valid CSV", ()
   element("start-btn").handlers.click();
   requestFrame(0);
   requestFrame(17);
+  assert.equal(element("export-btn").disabled, false, "Live samples must be exportable during the run");
   element("start-btn").handlers.click();
   const pausedTime = element("clock").textContent;
   requestFrame(34);

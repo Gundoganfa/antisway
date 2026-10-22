@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b111a">
+  <meta name="description" content="Interactive side-by-side overhead crane anti-sway simulation with ZVD input shaping, live velocity, estimated motor current and load sway oscilloscopes.">
+  <title>Anti-Sway Lab — Crane Motion Control Simulation</title>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./physics.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Anti-Sway Lab home"><span class="brand-icon">≈</span><span>ANTI<span class="brand-accent">SWAY</span><small>LAB / 001</small></span></a>
+    <div class="topbar-right"><span class="online-dot" aria-hidden="true"></span><span>PHYSICS-BASED DEMONSTRATOR</span><a class="top-link" href="https://github.com/Gundoganfa/antisway" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></div>
+  </header>
+
+  <main id="top">
+    <section class="intro">
+      <div class="eyebrow"><span class="eyebrow-line"></span> INDUSTRIAL MOTION CONTROL <span class="eyebrow-index">INTERACTIVE STUDY / 01</span></div>
+      <div class="hero-text"><div><h1>Same move.<br><em>Different ending.</em></h1><p>Two identical overhead cranes. One conventional trapezoidal velocity ramp. One vibration-aware <strong>ZVD input shaper</strong>. Watch what happens to the payload — and to the drive.</p></div>
+        <div class="hero-stat"><div class="hero-stat-label">NATURAL SWING PERIOD</div><div class="hero-stat-num" id="period-readout">5.68<span> s</span></div><div class="hero-stat-detail">T = 2π√(L / g)</div><div class="hero-stat-rule"></div><div class="hero-stat-detail">SHAPER: <strong>ZERO VIBRATION DERIVATIVE</strong></div></div>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <aside class="sidebar">
+        <section class="control-panel panel">
+          <div class="panel-header"><span class="section-tag">01 / CONFIGURE</span><span class="header-status">LIVE PARAMETERS</span></div>
+          <h2>Motion setup</h2><p class="muted panel-caption">Both cranes share these exact parameters. Changing a value resets the experiment.</p>
+          <div class="control-fields">
+            <label class="control-field" for="distance"><span>Travel distance <output id="distance-out">18 m</output></span><input id="distance" type="range" min="8" max="30" step="1" value="18"><span class="range-labels"><span>8 m</span><span>30 m</span></span></label>
+            <label class="control-field" for="rope"><span>Rope length <output id="rope-out">8 m</output></span><input id="rope" type="range" min="3" max="15" step="0.5" value="8"><span class="range-labels"><span>3 m</span><span>15 m</span></span></label>
+            <label class="control-field" for="payload"><span>Payload mass <output id="payload-out">4,000 kg</output></span><input id="payload" type="range" min="1000" max="8000" step="500" value="4000"><span class="range-labels"><span>1,000 kg</span><span>8,000 kg</span></span></label>
+            <label class="control-field" for="speed"><span>Maximum speed <output id="speed-out">2.0 m/s</output></span><input id="speed" type="range" min="0.6" max="3" step="0.1" value="2"><span class="range-labels"><span>0.6 m/s</span><span>3.0 m/s</span></span></label>
+            <label class="control-field" for="accel"><span>Acceleration <output id="accel-out">0.75 m/s²</output></span><input id="accel" type="range" min="0.3" max="1.5" step="0.05" value="0.75"><span class="range-labels"><span>0.30 m/s²</span><span>1.50 m/s²</span></span></label>
+          </div>
+          <div class="input-note"><span class="note-icon">i</span><span>Shaper is automatically retuned to the selected rope length. Both plants use the same dynamics.</span></div>
+        </section>
+        <section class="control-panel panel playback-panel">
+          <div class="panel-header"><span class="section-tag">02 / OPERATE</span><span class="header-status" id="run-state">READY</span></div>
+          <div class="time-display"><span>SIMULATION TIME</span><strong id="clock">00:00.00</strong></div>
+          <div class="transport"><button class="button primary" id="start-btn" type="button"><span id="start-glyph">▶</span><span id="start-label">Run simulation</span></button><button class="button icon-btn" id="reset-btn" type="button" aria-label="Reset experiment" title="Reset experiment">↺</button></div>
+          <div class="speed-selector" role="group" aria-label="Playback speed"><span>PLAYBACK</span><button type="button" class="rate active" data-rate="1" aria-pressed="true">1×</button><button type="button" class="rate" data-rate="2" aria-pressed="false">2×</button><button type="button" class="rate" data-rate="4" aria-pressed="false">4×</button></div>
+          <button class="button outline export" id="export-btn" type="button" disabled>↓ Export recorded CSV</button>
+          <p class="sidebar-footnote">Deterministic fixed-step simulation · 120 Hz · local browser processing · no backend</p>
+        </section>
+      </aside>
+
+      <div class="main-column">
+        <div class="experiment-top"><div><span class="section-tag">03 / SIDE BY SIDE</span><h2>Identical hardware. Different motion control.</h2></div><span class="live-tag"><span class="online-dot"></span><span id="live-status">READY TO SIMULATE</span></span></div>
+        <section class="crane-grid" aria-label="Overhead crane comparisons">
+          <article class="crane-panel panel conventional">
+            <div class="crane-panel-top"><div class="id-head"><span class="id-marker">A</span><div><span class="micro-label">REFERENCE / OPEN LOOP</span><h3>Conventional ramp</h3></div></div><span class="algorithm-pill orange">TRAPEZOIDAL</span></div>
+            <canvas id="crane-a" class="crane-canvas" aria-label="Animated reference crane with suspended load"></canvas>
+            <div class="position-track"><div class="position-bar"><div id="progress-a" class="position-fill"></div></div><div class="position-endpoints"><span>START / 0 m</span><span id="endpoint-a">18 m / TARGET</span></div></div>
+            <div class="crane-metrics"><div><span>POSITION</span><strong id="a-position">0.00 <small>m</small></strong></div><div><span>VELOCITY</span><strong id="a-velocity">0.00 <small>m/s</small></strong></div><div><span>LOAD ANGLE</span><strong id="a-angle">0.00 <small>°</small></strong></div><div><span>MOTOR CURRENT*</span><strong id="a-current">0.0 <small>A</small></strong></div></div>
+          </article>
+          <article class="crane-panel panel shaped">
+            <div class="crane-panel-top"><div class="id-head"><span class="id-marker">B</span><div><span class="micro-label">ADVANCED / MODEL-BASED FEEDFORWARD</span><h3>ZVD input shaping</h3></div></div><span class="algorithm-pill cyan">3-IMPULSE ZVD</span></div>
+            <canvas id="crane-b" class="crane-canvas" aria-label="Animated ZVD controlled crane with suspended load"></canvas>
+            <div class="position-track"><div class="position-bar"><div id="progress-b" class="position-fill"></div></div><div class="position-endpoints"><span>START / 0 m</span><span id="endpoint-b">18 m / TARGET</span></div></div>
+            <div class="crane-metrics"><div><span>POSITION</span><strong id="b-position">0.00 <small>m</small></strong></div><div><span>VELOCITY</span><strong id="b-velocity">0.00 <small>m/s</small></strong></div><div><span>LOAD ANGLE</span><strong id="b-angle">0.00 <small>°</small></strong></div><div><span>MOTOR CURRENT*</span><strong id="b-current">0.0 <small>A</small></strong></div></div>
+          </article>
+        </section>
+
+        <section class="scopes panel" aria-label="Recorded oscilloscope traces">
+          <div class="scopes-top"><div><span class="section-tag">04 / OSCILLOSCOPE</span><h2>Live motion traces</h2><p class="muted">Samples are recorded in browser memory and plotted against simulation time.</p></div><div class="scope-legend"><span><i class="legend-line conventional-key"></i>Conventional</span><span><i class="legend-line shaped-key"></i>ZVD shaped</span></div></div>
+          <div class="scope-grid">
+            <div class="scope-card"><div class="scope-title"><span>CH 01</span><strong>Velocity profile</strong><small>m/s</small></div><canvas id="scope-velocity" class="scope-canvas" aria-label="Time series comparing trolley velocity profiles"></canvas></div>
+            <div class="scope-card"><div class="scope-title"><span>CH 02</span><strong>Motor current <span class="asterisk">*</span></strong><small>A · signed</small></div><canvas id="scope-current" class="scope-canvas" aria-label="Time series comparing model-estimated torque-producing motor currents"></canvas></div>
+            <div class="scope-card"><div class="scope-title"><span>CH 03</span><strong>Payload swing</strong><small>degrees</small></div><canvas id="scope-angle" class="scope-canvas" aria-label="Time series comparing load swing angles"></canvas></div>
+          </div>
+          <div class="scope-footer"><span>CH 02 = simulated torque-producing current (I<sub>q</sub> equivalent), not a measured phase or RMS line current.</span><span>120 SAMPLES / SIM s</span></div>
+        </section>
+
+        <section class="results panel" aria-label="Experimental outcome"><div class="results-intro"><span class="section-tag">05 / EXPERIMENT RESULTS</span><h2>What changed at standstill?</h2><p class="muted" id="result-detail">Run the simulation to compare the residual oscillation after each trolley stops.</p></div><div class="result-tiles"><div class="result-tile"><span>CONVENTIONAL RESIDUAL RMS</span><strong id="residual-a">—</strong><small>degrees, 1 swing period after stop</small></div><div class="result-tile accent"><span>ZVD RESIDUAL RMS</span><strong id="residual-b">—</strong><small>degrees, 1 swing period after stop</small></div><div class="result-tile"><span>RESIDUAL SWAY REDUCTION</span><strong id="reduction">—</strong><small>relative RMS improvement</small></div></div></section>
+      </div>
+    </div>
+
+    <footer class="footer"><div><span class="section-tag">ENGINEERING NOTES</span><p>ZVD timing: [0, T/2, T] with weights [¼, ½, ¼]. Identical trolley and pendulum models; gravity 9.81 m/s². The ZVD controller preserves commanded travel distance but extends the move by one natural swing period. Small-angle, fixed-length input shaping is nominal; the simulator integrates a nonlinear pendulum with light damping.</p><p>*Current is a <strong>simplified traction-torque estimate</strong> from acceleration, payload reaction, friction, drivetrain gearing, efficiency, and motor torque constant. No inverter electrical dynamics, current limits, hoist motion, load elasticity, wind, or feedback sensor noise are modeled. Not for commissioning or safety calculations.</p></div><div class="footer-right">BUILD / ANTI-SWAY LAB<br>PHYSICS YOU CAN SEE.</div></footer>
+  </main>
+</div>
+</body>
+</html>

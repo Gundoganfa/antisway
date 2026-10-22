@@ -80,6 +80,7 @@
         " m transfer. ZVD reaches the destination " + pretty(scenario.T, 2) +
         " s later; residual sway is evaluated during the first natural period after each stop.";
     }
+    lastPaint = -1;
     refreshControls();
   }
 
@@ -160,7 +161,7 @@
     // Highlight load angle relative to hanging vertical.
     if (Math.abs(plant.theta) > 0.001) {
       ctx.beginPath(); ctx.arc(trolleyX, hookY, 18,
-        Math.PI / 2 - plant.theta, Math.PI / 2, plant.theta > 0);
+        Math.PI / 2, Math.PI / 2 - plant.theta, plant.theta > 0);
       ctx.strokeStyle = accent; ctx.lineWidth = 1.1; ctx.stroke();
     }
 
@@ -274,9 +275,9 @@
       if (scenario.done) finish();
     }
     lastFrame = now;
-    if (mode === "running" || lastPaint < 0 || mode === "complete") {
+    if (mode === "running" || lastPaint < 0) {
       // Keep scope updates near the monitor frame rate; the stored data is 120Hz.
-      if (lastPaint < 0 || now - lastPaint > 16 || mode === "complete") {
+      if (lastPaint < 0 || now - lastPaint > 16) {
         drawAll(); lastPaint = now;
       }
     }

@@ -273,6 +273,7 @@
         remainder -= P.DT;
         n++;
       }
+      if (n > 0) $("export-btn").disabled = false;
       if (scenario.done) finish();
     }
     lastFrame = now;

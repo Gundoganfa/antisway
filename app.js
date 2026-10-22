@@ -203,7 +203,8 @@
       maxV = metric === "angle" ? Math.max(2, peak * 180 / Math.PI * 1.25) : Math.max(20, peak * 1.2);
     }
     const minV = metric === "velocity" ? 0 : -maxV;
-    const val = (history, i) => metric === "angle" ? history.theta[i] * 180 / Math.PI : history[metric][i];
+    const val = (history, i) => metric === "angle" ? history.theta[i] * 180 / Math.PI :
+      metric === "velocity" ? history.v[i] : history.current[i];
     const xp = (t) => left + ww * (t / scenario.end);
     const yp = (v) => bottom - (v - minV) / (maxV - minV) * hh;
 
